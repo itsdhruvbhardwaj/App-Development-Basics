@@ -1,17 +1,20 @@
 package com.hackathon.todolist
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
+//import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +43,12 @@ import kotlin.collections.plus
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.foundation.combinedClickable
 
 
 
@@ -61,33 +71,81 @@ fun ToDoListApp()
     var taskName by remember { mutableStateOf("") }
     var taskDescription by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center)
-    {
-        Button(
-            onClick = {showDialog=true},
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text("Add a task");
-        }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var taskToDelete by remember { mutableStateOf<Tasks?>(null) }
 
+
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)) {
+
+        // --- TASK LIST ---
+        Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFE91E63))
+                    .padding(horizontal = 10.dp, vertical = 16.dp)
+            ) {
+                Text(
+                    text = "To Do List",
+                    color = Color.White,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-        )
-        {
+                .padding(top = 70.dp, start = 0.dp, end = 0.dp)
+        ) {
             items(tasks) {
-                TaskList(it,
+                TaskList(
+                    it,
                     onRowClick = {
-                        // Open edit dialog
                         showEditDialog = true
                         editTask = it
-                        // Load selected task into fields
                         taskName = it.name
                         taskDescription = it.description
                     },
-                    onDeleteClick = { },
+                    onDeleteClick = {
+                        taskToDelete = it
+                        showDeleteDialog = true
+                    }
+
+                )
+            }
+        }
+
+        // --- FLOATING ADD BUTTON ---
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(50.dp, 90.dp) // move towards north-west by increasing this
+                .shadow(
+                        elevation = 5.dp,
+                        shape = CircleShape,
+                        clip = false
                     )
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(60.dp)              // perfect circle
+                    .background(
+                        color = Color(0xFFE91E63),
+                        shape = CircleShape
+                    )
+                    .clickable { showDialog = true },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    tint = Color.White,
+                    contentDescription = "Add Task",
+                    modifier = Modifier.size(35.dp)
+                )
             }
         }
     }
@@ -102,7 +160,10 @@ fun ToDoListApp()
                     horizontalArrangement = Arrangement.SpaceBetween
                     )
                 {
-                    Button(onClick = {showDialog=false})
+                    Button(onClick = {showDialog=false},colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFE91E63),   // background
+                        contentColor = Color.White            // text color
+                    ))
                     {
                         Text("Cancel")
                     }
@@ -123,7 +184,12 @@ fun ToDoListApp()
                             taskName=""
                             taskDescription=""
                         }
-                    }) {
+                    },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFE91E63),   // background
+                            contentColor = Color.White            // text color
+                        )
+                    ) {
                         Text("Add")
                     }
 
@@ -196,9 +262,10 @@ fun ToDoListApp()
                                 else t
                             }
                         }
-
                         showEditDialog = false
-                    }) {
+                    },
+
+                        ) {
                         Text("Save")
                     }
                 }
@@ -233,8 +300,51 @@ fun ToDoListApp()
 
         )
     }
+
+    if (showDeleteDialog && taskToDelete != null) {
+        AlertDialog(
+
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Task?") },
+            text = { Text("Are you sure you want to delete this task?") },
+
+            confirmButton = {
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween)
+                {
+                    Button(
+                        onClick = { showDeleteDialog = false },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFE91E63),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text("Cancel")
+                    }
+
+                    Button(
+                        onClick = {
+                            tasks = tasks.filter { t -> t.id != taskToDelete!!.id }
+                            showDeleteDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFE91E63),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text("Delete")
+                    }
+
+                }
+            }
+        )
+    }
+
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskList(
     item: Tasks,
@@ -245,19 +355,22 @@ fun TaskList(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable{onRowClick()}
+            .combinedClickable(
+                onClick = { onRowClick() },        // normal click → edit
+                onLongClick = { onDeleteClick() } // long press → delete
+            )
             .shadow(
                 elevation = 8.dp,                 // shadow height
-                shape = RoundedCornerShape(20),   // match your border shape
+                shape = RoundedCornerShape(10),   // match your border shape
                 clip = false
             )
             .background(
                 color = Color(0xFFFFF1F4),          // your desired background color
-                shape = RoundedCornerShape(20)
+                shape = RoundedCornerShape(10)
             )
             .border(
-                border = BorderStroke(2.dp, Color(0xFFE91E63)),
-                shape = RoundedCornerShape(20)
+                border = BorderStroke(1.dp, Color(0xFFE91E63)),
+                shape = RoundedCornerShape(10)
             )
     ){
         Column(modifier = Modifier.fillMaxWidth())
@@ -267,7 +380,7 @@ fun TaskList(
                 Text(text = item.name,fontSize = 25.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
-                    modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 2.dp))
+                    modifier = Modifier.padding(8.dp, 3.dp, 8.dp, 0.dp))
 
                 Text(text = item.date,color = Color.Black, modifier = Modifier.padding(10.dp))
             }
