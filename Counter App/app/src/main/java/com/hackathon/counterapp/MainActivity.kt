@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,19 +29,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hackathon.counterapp.ui.theme.CounterAppTheme
+import kotlin.math.absoluteValue
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val viewModel: CounterViewModel = viewModel()
             CounterAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize())
                 { innerPadding ->
                     Surface(modifier = Modifier.fillMaxSize().padding(innerPadding), color = MaterialTheme.colorScheme.background)
                     {
-                        Counter()
+                        TheCounterApp(viewModel)
                     }
                 }
             }
@@ -48,47 +53,39 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+
 @Composable
-fun Counter()
+fun TheCounterApp(viewModel: CounterViewModel)
 {
-    var count by remember { mutableStateOf(0) }
-    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally)
-    {
-        Text(text = "Count:  ${count}", fontWeight = FontWeight.Bold, fontSize = 24.sp)
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Count: ${viewModel.count.value}", fontSize = 30.sp, fontWeight = FontWeight.Bold)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row()
-        {
-            Button(onClick = {count = decrement(count)})
-            {
-                Text("Decrement")
+        Row() {
+            Button(onClick = { viewModel.decrement()}) {
+                Text("Decrease")
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Button(onClick = {count = increment(count)})
-            {
-                Text("Increment")
+            Button(onClick = { viewModel.increment()}) {
+                Text("Increase")
             }
         }
     }
-}
 
-
-fun increment(value: Int ): Int
-{
-    return value+1;
-}
-fun decrement(value: Int): Int
-{
-    return value-1;
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     CounterAppTheme {
-        Counter()
+        TheCounterApp(viewModel())
     }
 }
