@@ -12,7 +12,7 @@ class MainViewModel: ViewModel()
     val categoriesState: State<RecipeState> = _categorieState
 
     init {
-        
+        fetchCategories()
     }
 
     private fun fetchCategories(){
@@ -35,7 +35,7 @@ class MainViewModel: ViewModel()
         }
     }
     data class RecipeState(
-        val loading: Boolean = false,
+        val loading: Boolean = true,
         val list: List<Category> = emptyList(),
         val error: String? = null
     )

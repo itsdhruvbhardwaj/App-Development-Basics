@@ -1,3 +1,5 @@
+//import androidx.glance.appwidget.compose
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,12 +7,12 @@ plugins {
 }
 
 android {
-    namespace = "com.hackathon.myrecipeapp"
+    namespace = "com.hackathon.psycare"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.hackathon.myrecipeapp"
-        minSdk = 24
+        applicationId = "com.hackathon.psycare"
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -41,15 +43,6 @@ android {
 
 dependencies {
 
-    //view model
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
-    //Network call
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    //JSON to Kotlin object mapping
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    //Image Loading
-    implementation("io.coil-kt:coil-compose:2.5.0")
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -58,6 +51,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.runtime.android)
+    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
