@@ -3,6 +3,7 @@ package com.hackathon.myrecipeapp
 import android.text.Layout
 import androidx.compose.animation.core.copy
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -30,10 +31,8 @@ import java.time.format.TextStyle
 import androidx.compose.foundation.lazy.grid.items // <<< ADD THIS IMPORT
 
 @Composable
-fun RecipeScreen(modifier: Modifier = Modifier){
-    val recipeViewModel: MainViewModel = viewModel()
-    val viewstate by recipeViewModel.categoriesState
-
+fun RecipeScreen(modifier: Modifier = Modifier, viewstate: MainViewModel.RecipeState, navigateToDetails: (Category) -> Unit){
+    
     Box(modifier = Modifier.fillMaxSize())
     {
         when{
@@ -47,29 +46,33 @@ fun RecipeScreen(modifier: Modifier = Modifier){
             }
             else ->
             {
-                CategoryScreen(categories = viewstate.list)
+                CategoryScreen(categories = viewstate.list, navigateToDetails)
             }
         }
     }
 }
 
 @Composable
-fun CategoryScreen(categories: List<Category>)
+fun CategoryScreen(categories: List<Category>, navigateToDetails: (Category) -> Unit)
 {
     LazyVerticalGrid(GridCells.Fixed(2), modifier = Modifier.fillMaxSize())
     {
         items(categories) {
             category ->
-            CategoryItem(category = category)
+            CategoryItem(category = category, navigateToDetails)
         }
     }
 }
 
 @Composable
-fun CategoryItem(category: Category)
+fun CategoryItem(category: Category, navigateToDetails: (Category) -> Unit)
 {
 
-    Column(modifier = Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally)
+    Column(modifier = Modifier.padding(8.dp)
+                            .fillMaxSize()
+                            .clickable{navigateToDetails(category)},
+        horizontalAlignment = Alignment.CenterHorizontally
+    )
     {
         Image(
             painter = rememberAsyncImagePainter(category.strCategoryThumb),
