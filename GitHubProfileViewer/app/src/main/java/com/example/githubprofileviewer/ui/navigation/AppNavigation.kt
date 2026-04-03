@@ -25,7 +25,10 @@ fun AppNavigation() {
 
             val username = backStackEntry.arguments?.getString("username")
 
-            ProfileScreen(username ?: "")
+            ProfileScreen(
+                username = username ?: "",
+                navController = navController // ✅ pass navController
+            )
         }
     }
 }

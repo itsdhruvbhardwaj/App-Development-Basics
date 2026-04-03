@@ -1,73 +1,149 @@
 package com.example.githubprofileviewer.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
 
 import com.example.githubprofileviewer.MainViewModel
 import com.example.githubprofileviewer.UiState
+import com.example.githubprofileviewer.ui.components.AppHeader
 import com.example.githubprofileviewer.ui.components.SkeletonList
 
 @Composable
 fun ProfileScreen(
     username: String,
+    navController: NavController,
     viewModel: MainViewModel = viewModel()
 ) {
 
-    // 🔥 Trigger API when screen opens
     LaunchedEffect(Unit) {
         viewModel.fetchUser(username)
     }
 
     val state = viewModel.state
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()   // ✅ FIX: adds space from top (IMPORTANT)
-            .padding(16.dp)
-    ) {
+    Scaffold(
+
+        // ✅ HEADER (WILL NOW BE VISIBLE)
+        topBar = {
+            AppHeader(
+                title = username,
+                showBack = true,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+    ) { padding ->
 
         when (state) {
 
             is UiState.Loading -> {
-                SkeletonList()
+                Box(
+                    modifier = Modifier
+                        .padding(padding)
+                        .fillMaxSize()
+                ) {
+                    SkeletonList()
+                }
             }
 
             is UiState.Success -> {
 
-                // 👤 User Info
-                Text(
-                    text = "User: ${state.user.login}",
-                    style = MaterialTheme.typography.titleLarge
-                )
+                val user = state.user
+                val repos = state.repos
 
-                Text(
-                    text = "Followers: ${state.user.followers}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(padding)
+                        .fillMaxSize()
+                        .navigationBarsPadding()
+                        .padding(horizontal = 16.dp),
 
-                Spacer(modifier = Modifier.height(12.dp))
+                    // 🔥 ADD THIS (THIS IS THE FIX)
+                    contentPadding = PaddingValues(
+                        top = 16.dp,      // ✅ adds gap from header
+                        bottom = 32.dp
+                    )
+                ) {
 
-                Text(
-                    text = "Repositories:",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.cardElevation(6.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
 
-                Spacer(modifier = Modifier.height(8.dp))
+                                AsyncImage(
+                                    model = user.avatar_url,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(70.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
 
-                // 📦 Repo list
-                state.repos.forEach {
-                    Text("- ${it.name} ⭐ ${it.stargazers_count}")
+                                Spacer(modifier = Modifier.width(16.dp))
+
+                                Column {
+                                    Text(user.login)
+                                    Text("Followers: ${user.followers}")
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text("Repositories")
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    items(repos) { repo ->
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
+                            elevation = CardDefaults.cardElevation(4.dp)
+                        ) {
+
+                            Column(
+                                modifier = Modifier.padding(12.dp)
+                            ) {
+
+                                Text(repo.name)
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Text("⭐ ${repo.stargazers_count}")
+                            }
+                        }
+                    }
                 }
             }
 
             is UiState.Error -> {
-                Text("Error: ${state.message}")
+                Box(
+                    modifier = Modifier
+                        .padding(padding)
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Error: ${state.message}")
+                }
             }
 
             else -> {}

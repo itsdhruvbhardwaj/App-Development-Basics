@@ -13,6 +13,7 @@ fun SkeletonList() {
     Column {
 
         // 👤 Profile loading
+        Spacer(modifier = Modifier.height(16.dp))
         ProfileSkeleton()
 
         Spacer(modifier = Modifier.height(16.dp))

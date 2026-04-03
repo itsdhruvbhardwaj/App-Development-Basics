@@ -1,112 +1,166 @@
 package com.example.githubprofileviewer.ui
 
 import android.content.Context
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.navigation.NavController
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 
 import com.example.githubprofileviewer.MainViewModel
+import com.example.githubprofileviewer.ui.components.AppHeader
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 @Composable
 fun MainScreen(
     navController: NavController,
-    modifier: Modifier = Modifier,
     viewModel: MainViewModel = viewModel()
 ) {
 
     var username by remember { mutableStateOf("") }
-
     val context = LocalContext.current
 
-    // ✅ FIX: now list instead of single user
     var recentUsers by remember {
         mutableStateOf(viewModel.getLastSearches(context))
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .statusBarsPadding()   // ✅ FIX 1: adds proper top spacing
-            .padding(16.dp)
-    ) {
+    Scaffold(
 
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Enter GitHub Username") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Button(
-            onClick = {
-                if (username.isNotBlank()) {
-
-                    viewModel.saveLastSearch(context, username)
-
-                    // refresh list
-                    recentUsers = viewModel.getLastSearches(context)
-
-                    navController.navigate("profile/$username")
-                }
-            },
-            enabled = username.isNotBlank(),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Search")
+        // 🔥 FULL WIDTH HEADER
+        topBar = {
+            AppHeader(
+                title = "GitHub",
+                subtitle = "Profile Viewer"
+            )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+    ) { padding ->
 
-        // 🟢 Recent Searches List
-        if (recentUsers.isNotEmpty()) {
+        LazyColumn(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp),
+            contentPadding = PaddingValues(
+                top = 16.dp,   // ✅ SAME FIX
+                bottom = 24.dp
+            )
+        ) {
 
-            Text("Recent Searches", style = MaterialTheme.typography.titleMedium)
+            // 🔍 SEARCH CARD
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(6.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
 
-            Spacer(modifier = Modifier.height(8.dp))
+                        Text("Search GitHub User")
 
-            LazyColumn {
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        OutlinedTextField(
+                            value = username,
+                            onValueChange = { username = it },
+                            placeholder = { Text("Enter username...") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        val isEnabled = username.isNotBlank()
+
+                        Button(
+                            onClick = {
+                                if (isEnabled) {
+                                    viewModel.saveLastSearch(context, username)
+                                    recentUsers = viewModel.getLastSearches(context)
+                                    navController.navigate("profile/$username")
+                                }
+                            },
+
+                            enabled = isEnabled, // ✅ controls click + ripple
+
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(40.dp),
+
+                            shape = RoundedCornerShape(24.dp),
+
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isEnabled)
+                                    MaterialTheme.colorScheme.primary   // 🔥 filled when active
+                                else
+                                    MaterialTheme.colorScheme.surfaceVariant, // light when empty
+
+                                contentColor = if (isEnabled)
+                                    MaterialTheme.colorScheme.onPrimary
+                                else
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        ) {
+                            Text("Search")
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // 🟢 RECENT SEARCHES
+            if (recentUsers.isNotEmpty()) {
+
+                item {
+                    Text("Recent Searches")
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
                 items(recentUsers) { user ->
 
-                    Row(
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .padding(vertical = 6.dp),
+                        elevation = CardDefaults.cardElevation(4.dp)
                     ) {
 
-                        Text(
-                            text = user,
-                            modifier = Modifier.clickable {
-                                navController.navigate("profile/$user")
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    navController.navigate("profile/$user")
+                                }
+                                .padding(14.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+
+                            Text(user)
+
+                            IconButton(onClick = {
+
+                                val updated = recentUsers.toMutableList()
+                                updated.remove(user)
+                                recentUsers = updated
+
+                                val prefs = context.getSharedPreferences(
+                                    "app_prefs",
+                                    Context.MODE_PRIVATE
+                                )
+                                prefs.edit()
+                                    .putStringSet("recent_users", updated.toSet())
+                                    .apply()
+
+                            }) {
+                                Icon(Icons.Default.Delete, contentDescription = null)
                             }
-                        )
-
-                        IconButton(onClick = {
-
-                            // remove one item manually
-                            val updated = recentUsers.toMutableList()
-                            updated.remove(user)
-
-                            recentUsers = updated
-
-                            val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-                            prefs.edit().putStringSet("recent_users", updated.toSet()).apply()
-
-                        }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete")
                         }
                     }
                 }
