@@ -1,0 +1,86 @@
+# 🚀 GitHub Profile Viewer (Android App)
+A modern Android application built using Jetpack Compose that allows users to search GitHub profiles and view their repositories in a clean and interactive UI.
+
+## ✨ Features
+🔍 Search GitHub users by username
+👤 View user profile (avatar, username, followers)
+📦 View repositories list
+⚡ Smooth navigation between screens
+💾 Recent searches (stored locally)
+🌐 Internet connectivity check
+❌ Proper error handling (user not found, network issues)
+🎨 Clean modern UI with Material 3
+📱 Custom app icon
+
+## 🛠 Tech Stack
+* Kotlin
+* Jetpack Compose
+* MVVM Architecture
+* Retrofit (API calls)
+* Gson (JSON parsing)
+* Coil (Image loading)
+* Navigation Compose
+* Coroutines
+
+## 📂 Project Structure
+com.example.githubprofileviewer
+│
+├── data/               # API & Retrofit
+├── ui/                 # Screens (MainScreen, ProfileScreen)
+│   ├── components/     # Reusable UI components
+│   └── theme/          # Colors & Theme
+├── utils/              # Network utilities
+├── MainViewModel.kt    # Business logic
+├── UiState.kt          # UI state handling
+
+## 🧠 Architecture
+This app follows MVVM (Model-View-ViewModel):
+* View (UI): Jetpack Compose screens
+* ViewModel: Handles business logic & API calls
+* Model: API responses
+
+## ⚙️ How It Works
+1. User enters GitHub username
+2. App navigates to profile screen
+3. API fetches:
+   * User details
+   * Repositories
+4. UI updates based on state:
+   * Loading → Skeleton UI
+   * Success → Data shown
+   * Error → Friendly message
+
+## 🚧 Current Status
+✅ Initial Release Complete
+* Core features implemented
+* UI structured
+* Error handling added
+
+## 📦 APK Download Guide
+Follow these steps to download and install the APK:
+1. Go to the Releases section of this repository
+2. Click on the latest version
+3. Download the `.apk` file
+4. Open the downloaded file on your Android device
+5. If prompted, enable "Install from unknown sources"
+6. Install and launch the app 🎉
+
+## 💻 Run Locally (For Developers)
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/your-repo-name.git
+   ```
+2. Open the project in Android Studio
+3. Sync Gradle
+4. Run the app on an emulator or physical device
+
+## 🔮 Upcoming Improvements
+* 🔄 Improved loading skeleton (premium UI)
+* 🔗 Open repo in browser
+* 👥 Followers screen
+* ⭐ Repo sorting
+* 🌙 Dark mode toggle
+* 📡 Offline caching (Room DB)
+
+## 🙌 Author
+Built with ❤️ as part of Android development learning journey.
