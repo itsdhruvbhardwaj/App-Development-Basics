@@ -1,41 +1,52 @@
 package com.example.githubprofileviewer.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun SkeletonItem() {
-    Column(
+    val brush = shimmerBrush()
+
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(12.dp)
     ) {
 
-        // Fake title
+        // Avatar placeholder (NEW)
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .height(20.dp)
-                .background(Color.Gray)
+                .size(50.dp)
+                .background(brush, RoundedCornerShape(12.dp))
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
-        // Fake subtitle
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.3f)
-                .height(16.dp)
-                .background(Color.LightGray)
-        )
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            // Title
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .height(20.dp)
+                    .background(brush, RoundedCornerShape(8.dp))
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Subtitle
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.3f)
+                    .height(16.dp)
+                    .background(brush, RoundedCornerShape(8.dp))
+            )
+        }
     }
 }

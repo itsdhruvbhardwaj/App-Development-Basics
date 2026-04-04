@@ -42,7 +42,12 @@ class MainViewModel : ViewModel() {
                     val repos = repoResponse.body()
 
                     if (user != null && repos != null) {
-                        state = UiState.Success(user, repos)
+
+                        // 🔥 SORT REPOS (latest first)
+                        val sortedRepos = repos.sortedByDescending { it.updatedAt }
+
+                        state = UiState.Success(user, sortedRepos)
+
                     } else {
                         state = UiState.Error("Something went wrong 😕")
                     }
@@ -66,19 +71,25 @@ class MainViewModel : ViewModel() {
 
         val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
-        val existing = prefs.getStringSet("recent_users", mutableSetOf()) ?: mutableSetOf()
+        val existing = prefs.getStringSet("recent_users", emptySet()) ?: emptySet()
 
-        val updated = existing.toMutableSet()
+        // Convert to list to maintain order
+        val updatedList = mutableListOf<String>()
 
-        updated.remove(username) // remove duplicate
-        updated.add(username)
+        // Add new username FIRST
+        updatedList.add(username)
 
-        // limit to last 5
-        if (updated.size > 5) {
-            updated.remove(updated.first())
+        // Add old ones (excluding duplicate)
+        existing.forEach {
+            if (it != username) {
+                updatedList.add(it)
+            }
         }
 
-        prefs.edit().putStringSet("recent_users", updated).apply()
+        // Limit to 5
+        val finalList = updatedList.take(5)
+
+        prefs.edit().putStringSet("recent_users", finalList.toSet()).apply()
     }
 
     // Get all recent searches

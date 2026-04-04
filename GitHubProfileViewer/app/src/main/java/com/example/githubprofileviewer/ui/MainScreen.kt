@@ -127,7 +127,7 @@ fun MainScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
 
-                items(recentUsers) { user ->
+                items(recentUsers.distinct()) { user ->
 
                     Card(
                         modifier = Modifier

@@ -1,8 +1,8 @@
 package com.example.githubprofileviewer.ui.components
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -10,16 +10,19 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SkeletonList() {
 
-    Column {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 12.dp)
+    ) {
 
-        // 👤 Profile loading
-        Spacer(modifier = Modifier.height(16.dp))
-        ProfileSkeleton()
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            ProfileSkeleton()
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 📦 Repo list loading
-        repeat(5) {
+        items(5) {
             SkeletonItem()
         }
     }
