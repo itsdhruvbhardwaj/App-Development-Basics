@@ -19,15 +19,19 @@ import com.example.githubprofileviewer.UiState
 import com.example.githubprofileviewer.ui.components.AppHeader
 import com.example.githubprofileviewer.ui.components.SkeletonList
 
+
 @Composable
 fun ProfileScreen(
     username: String,
     navController: NavController,
     viewModel: MainViewModel = viewModel()
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(username) {
 
-    LaunchedEffect(Unit) {
-        viewModel.fetchUser(username)
+        if (username.isNotBlank()) {
+            viewModel.fetchUser(username, context)
+        }
     }
 
     val state = viewModel.state

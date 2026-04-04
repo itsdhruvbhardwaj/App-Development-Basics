@@ -19,55 +19,45 @@ class MainViewModel : ViewModel() {
         private set // prevents UI from modifying it directly
 
     // This function is called when user searches for a GitHub username
-    fun fetchUser(username: String) {
+    fun fetchUser(username: String, context: Context) {
 
-        // viewModelScope.launch = runs code in background (coroutines)
-        // prevents blocking UI thread (VERY IMPORTANT)
         viewModelScope.launch {
 
-            // Step 1: Show loading state
             state = UiState.Loading
 
+            // 🔥 CHECK INTERNET FIRST
+            if (!com.example.githubprofileviewer.utils.isInternetAvailable(context)) {
+                state = UiState.Error("No internet connection 🌐")
+                return@launch
+            }
+
             try {
-                // Step 2: Call API (network request)
 
-                // Get user profile
                 val userResponse = RetrofitInstance.api.getUser(username)
-
-                // Get user repositories
                 val repoResponse = RetrofitInstance.api.getRepos(username)
 
-                // Step 3: Check if API calls were successful
                 if (userResponse.isSuccessful && repoResponse.isSuccessful) {
 
-                    // Extract data from response body
                     val user = userResponse.body()
                     val repos = repoResponse.body()
 
-                    // Step 4: Check if data is not null
                     if (user != null && repos != null) {
-
-                        // Step 5: Update UI with success state
                         state = UiState.Success(user, repos)
-
                     } else {
-                        // If response body is empty
-                        state = UiState.Error("Empty response from server")
+                        state = UiState.Error("Something went wrong 😕")
                     }
 
                 } else {
-                    // If API returns error (404, 500, etc.)
-                    state = UiState.Error(
-                        "API Error: ${userResponse.code()}"
-                    )
+
+                    if (userResponse.code() == 404) {
+                        state = UiState.Error("User not found 😕")
+                    } else {
+                        state = UiState.Error("Something went wrong. Try again!")
+                    }
                 }
 
             } catch (e: Exception) {
-                // Step 6: Handle exceptions (no internet, timeout, etc.)
-
-                state = UiState.Error(
-                    e.message ?: "Unknown error occurred"
-                )
+                state = UiState.Error("Network error occurred 🌐")
             }
         }
     }

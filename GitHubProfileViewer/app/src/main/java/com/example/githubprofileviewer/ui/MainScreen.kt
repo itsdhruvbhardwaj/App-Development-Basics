@@ -80,10 +80,14 @@ fun MainScreen(
 
                         Button(
                             onClick = {
-                                if (isEnabled) {
-                                    viewModel.saveLastSearch(context, username)
+                                val cleanUsername = username.trim()
+
+                                if (cleanUsername.isNotEmpty()) {
+
+                                    viewModel.saveLastSearch(context, cleanUsername)
                                     recentUsers = viewModel.getLastSearches(context)
-                                    navController.navigate("profile/$username")
+
+                                    navController.navigate("profile/$cleanUsername")
                                 }
                             },
 
@@ -136,7 +140,8 @@ fun MainScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    navController.navigate("profile/$user")
+                                    val cleanUser = user.trim()
+                                    navController.navigate("profile/$cleanUser")
                                 }
                                 .padding(14.dp),
                             horizontalArrangement = Arrangement.SpaceBetween

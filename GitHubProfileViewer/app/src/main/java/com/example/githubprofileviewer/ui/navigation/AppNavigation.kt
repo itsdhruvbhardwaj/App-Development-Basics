@@ -23,7 +23,7 @@ fun AppNavigation() {
         // 🟢 Profile Screen
         composable("profile/{username}") { backStackEntry ->
 
-            val username = backStackEntry.arguments?.getString("username")
+            val username = backStackEntry.arguments?.getString("username") ?: ""
 
             ProfileScreen(
                 username = username ?: "",
