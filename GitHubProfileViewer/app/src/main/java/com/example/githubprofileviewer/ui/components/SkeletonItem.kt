@@ -17,14 +17,14 @@ fun SkeletonItem() {
             .padding(12.dp)
     ) {
 
-        // Avatar placeholder (NEW)
-        Box(
-            modifier = Modifier
-                .size(50.dp)
-                .background(brush, RoundedCornerShape(12.dp))
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
+//        // Avatar placeholder (NEW)
+//        Box(
+//            modifier = Modifier
+//                .size(50.dp)
+//                .background(brush, RoundedCornerShape(12.dp))
+//        )
+//
+//        Spacer(modifier = Modifier.width(12.dp))
 
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -33,7 +33,7 @@ fun SkeletonItem() {
             // Title
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.6f)
+                    .fillMaxWidth(1f)
                     .height(20.dp)
                     .background(brush, RoundedCornerShape(8.dp))
             )

@@ -21,8 +21,10 @@ import com.example.githubprofileviewer.UiState
 import com.example.githubprofileviewer.ui.components.AppHeader
 import com.example.githubprofileviewer.ui.components.SkeletonList
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.ui.text.font.FontWeight
 import com.example.githubprofileviewer.ui.components.ProfileStat
+import com.example.githubprofileviewer.utils.LanguageColor
 import com.example.githubprofileviewer.utils.formatGithubDate
 
 @Composable
@@ -141,7 +143,11 @@ fun ProfileScreen(
                                     ProfileStat(
                                         label = "Followers",
                                         value = user.followers,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .clickable {
+                                                navController.navigate("followers/${user.login}")
+                                            }
                                     )
                                     ProfileStat(
                                         label = "Following",
@@ -200,9 +206,40 @@ fun ProfileScreen(
                                     )
                                 }
 
-                                Spacer(modifier = Modifier.height(4.dp))
+                                //repo stuff like star, language, etc
+                                Spacer(modifier = Modifier.height(8.dp))
 
-                                Text("⭐ ${repo.stars}")
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+
+                                    // ⭐ Stars
+                                    Text("⭐ ${repo.stars}")
+
+                                    // 🟢 Language Dot + Name
+                                    repo.language?.let { language ->
+
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(10.dp)
+                                                    .clip(CircleShape)
+                                                    .background(LanguageColor.getColor(language))
+                                            )
+
+                                            Spacer(modifier = Modifier.width(6.dp))
+
+                                            Text(
+                                                text = language,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

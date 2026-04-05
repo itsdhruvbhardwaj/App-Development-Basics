@@ -18,11 +18,13 @@ fun SkeletonList() {
 
         item {
             Spacer(modifier = Modifier.height(16.dp))
+            //profile section
             ProfileSkeleton()
             Spacer(modifier = Modifier.height(16.dp))
         }
 
         items(5) {
+            //repo section
             SkeletonItem()
         }
     }
