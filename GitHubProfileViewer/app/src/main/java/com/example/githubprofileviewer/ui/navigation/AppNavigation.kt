@@ -3,6 +3,7 @@ package com.example.githubprofileviewer.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.*
 import com.example.githubprofileviewer.ui.FollowersScreen
+import com.example.githubprofileviewer.ui.FollowingScreen
 import com.example.githubprofileviewer.ui.MainScreen
 import com.example.githubprofileviewer.ui.ProfileScreen
 
@@ -39,6 +40,17 @@ fun AppNavigation() {
             val username = backStackEntry.arguments?.getString("username") ?: ""
 
             FollowersScreen(
+                username = username,
+                navController = navController
+            )
+        }
+
+        //Following Screen
+        composable("following/{username}") { backStackEntry ->
+
+            val username = backStackEntry.arguments?.getString("username") ?: ""
+
+            FollowingScreen(
                 username = username,
                 navController = navController
             )

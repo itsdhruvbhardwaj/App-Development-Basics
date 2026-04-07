@@ -152,7 +152,11 @@ fun ProfileScreen(
                                     ProfileStat(
                                         label = "Following",
                                         value = user.following,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .clickable {
+                                                navController.navigate("following/${user.login}")
+                                            }
                                     )
                                     ProfileStat(
                                         label = "Repos",

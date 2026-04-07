@@ -7,12 +7,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.example.githubprofileviewer.ui.components.AppHeader
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.githubprofileviewer.MainViewModel
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.ui.unit.dp
+import com.example.githubprofileviewer.ui.components.FollowerSkeletonItem
+
+import com.example.githubprofileviewer.ui.components.FollowerItem
 
 @Composable
 fun FollowersScreen(
     username: String,
-    navController: NavController
+    navController: NavController,
+    viewModel: MainViewModel = viewModel()
 ) {
+    LaunchedEffect(username) {
+        viewModel.fetchFollowers(username)
+    }
+
+    val followers = viewModel.followers
+    val isLoading = viewModel.isFollowersLoading
+
     Scaffold(
         topBar = {
             AppHeader(
@@ -23,13 +40,83 @@ fun FollowersScreen(
         }
     ) { padding ->
 
-        Box(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "Followers of $username")
+        if (isLoading) {
+            Card(
+                modifier = Modifier
+                    .padding(padding)
+                    .wrapContentHeight()
+                    .padding(16.dp),
+                shape = MaterialTheme.shapes.large,
+                elevation = CardDefaults.cardElevation(4.dp)
+            ) {
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+
+                    items(6) { // show 6 skeleton items
+                        FollowerSkeletonItem()
+                    }
+                }
+            }
+        } else if (followers.isEmpty()) {
+
+            Box(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No followers found")
+            }
+
+        } else {
+            Card(
+                modifier = Modifier
+                    .padding(padding)
+                    .wrapContentHeight()
+                    .padding(16.dp),
+                shape = MaterialTheme.shapes.large,
+                elevation = CardDefaults.cardElevation(4.dp)
+            ) {
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp)
+                ) {
+                    itemsIndexed(followers) { index, user ->
+
+                        if (!viewModel.userDetails.containsKey(user.login)) {
+                            LaunchedEffect(user.login) {
+                                viewModel.fetchUserDetails(user.login)
+                            }
+                        }
+
+                        val details = viewModel.userDetails[user.login]
+
+                        FollowerItem(
+                            user = user,
+                            name = details?.name,
+                            onClick = {
+                                navController.navigate("profile/${user.login}")
+                            }
+                        )
+
+                        if (index < followers.lastIndex) {
+                            Divider(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp),
+                                thickness = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

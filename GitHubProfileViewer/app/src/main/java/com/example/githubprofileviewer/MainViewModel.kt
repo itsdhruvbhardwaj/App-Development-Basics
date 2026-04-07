@@ -10,6 +10,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import android.content.Context
+import androidx.compose.runtime.*
+import kotlin.collections.plus
 
 class MainViewModel : ViewModel() {
 
@@ -34,16 +36,24 @@ class MainViewModel : ViewModel() {
             try {
 
                 val userResponse = RetrofitInstance.api.getUser(username)
-                val repoResponse = RetrofitInstance.api.getRepos(username)
+                val repoResponse = try {
+                    RetrofitInstance.api.getRepos(username)
+                } catch (e: Exception) {
+                    null
+                }
 
-                if (userResponse.isSuccessful && repoResponse.isSuccessful) {
+                if (userResponse.isSuccessful) {
 
                     val user = userResponse.body()
-                    val repos = repoResponse.body()
 
-                    if (user != null && repos != null) {
+                    val repos = if (repoResponse != null && repoResponse.isSuccessful) {
+                        repoResponse.body() ?: emptyList()
+                    } else {
+                        emptyList()
+                    }
 
-                        // 🔥 SORT REPOS (latest first)
+                    if (user != null) {
+
                         val sortedRepos = repos.sortedByDescending { it.updatedAt }
 
                         state = UiState.Success(user, sortedRepos)
@@ -102,6 +112,137 @@ class MainViewModel : ViewModel() {
     fun clearAllSearches(context: Context) {
         val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         prefs.edit().remove("recent_users").apply()
+    }
+
+    //Followrs Screen Logic
+    var followers by mutableStateOf<List<User>>(emptyList())
+        private set
+
+    var isFollowersLoading by mutableStateOf(false)
+        private set
+
+    fun fetchFollowers(username: String) {
+        viewModelScope.launch {
+
+            isFollowersLoading = true
+
+            try {
+                val response = RetrofitInstance.api.getFollowers(username)
+
+                if (response.isSuccessful) {
+                    followers = response.body() ?: emptyList()
+                } else {
+                    followers = emptyList()
+                }
+
+            } catch (e: Exception) {
+                followers = emptyList()
+            }
+
+            isFollowersLoading = false
+        }
+    }
+
+//    var followerDetails by mutableStateOf<Map<String, User>>(emptyMap())
+//        private set
+//
+//    fun fetchFollowerDetails(username: String) {
+//
+//        // ✅ Prevent duplicate API calls
+//        if (followerDetails.containsKey(username)) return
+//
+//        viewModelScope.launch {
+//            try {
+//                val response = RetrofitInstance.api.getUser(username)
+//
+//                if (response.isSuccessful) {
+//                    response.body()?.let { user ->
+//                        followerDetails = followerDetails + (username to user)
+//                    }
+//                }
+//
+//            } catch (e: Exception) {
+//                // ignore
+//            }
+//        }
+//    }
+
+    //Following Screen Logic
+    var following by mutableStateOf<List<User>>(emptyList())
+        private set
+
+    var isFollowingLoading by mutableStateOf(false)
+        private set
+
+    fun fetchFollowing(username: String) {
+        viewModelScope.launch {
+
+            isFollowingLoading = true
+
+            try {
+                val response = RetrofitInstance.api.getFollowing(username)
+
+                if (response.isSuccessful) {
+                    following = response.body() ?: emptyList()
+                } else {
+                    following = emptyList()
+                }
+
+            } catch (e: Exception) {
+                following = emptyList()
+            }
+
+            isFollowingLoading = false
+        }
+    }
+
+//    var followingDetails by mutableStateOf<Map<String, User>>(emptyMap())
+//        private set
+//
+//    fun fetchFollowingDetails(username: String) {
+//
+//        // ✅ Prevent duplicate API calls
+//        if (followingDetails.containsKey(username)) return
+//
+//        viewModelScope.launch {
+//            try {
+//                val response = RetrofitInstance.api.getUser(username)
+//
+//                if (response.isSuccessful) {
+//                    response.body()?.let { user ->
+//                        followingDetails = followingDetails + (username to user)
+//                    }
+//                }
+//
+//            } catch (e: Exception) {
+//                // ignore
+//            }
+//        }
+//    }
+
+    // 🔥 Shared user details cache (followers + following)
+    var userDetails by mutableStateOf<Map<String, User>>(emptyMap())
+        private set
+
+    fun fetchUserDetails(username: String) {
+
+        // Prevent duplicate API calls
+        if (userDetails.containsKey(username)) return
+
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.api.getUser(username)
+
+                if (response.isSuccessful) {
+                    response.body()?.let { user ->
+                        userDetails = userDetails + (username to user)
+                    }
+                }
+
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
     }
 }
 

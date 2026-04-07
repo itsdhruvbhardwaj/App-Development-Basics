@@ -1,77 +1,136 @@
-# 🚀 GitHub Profile Viewer (Android App)
-A modern Android application built using Jetpack Compose that allows users to search GitHub profiles and view their repositories in a clean and interactive UI.
+🚀 GitHub Profile Viewer (Android App)
 
-## ✨ Features
-🔍 Search GitHub users by username
-👤 View user profile (avatar, username, followers)
-📦 View repositories list
-⚡ Smooth navigation between screens
-💾 Recent searches (stored locally)
-🌐 Internet connectivity check
-❌ Proper error handling (user not found, network issues)
-🎨 Clean modern UI with Material 3
-📱 Custom app icon
+A modern Android application built using **Jetpack Compose** that allows users to search GitHub profiles and explore their data in a clean, fast, and interactive UI.
 
-## 🛠 Tech Stack
+
+✨ Features
+
+* Search GitHub users by username
+* View user profile (avatar, name, bio, stats)
+* View repositories (sorted by latest update)
+* Open repositories in browser
+
+
+👥 Social Features
+
+* Followers screen
+  * Clean card-based UI
+  * Skeleton loading (shimmer)
+  * Fetch additional user details
+* Following screen
+  * Fully implemented
+  * Reuses UI components for consistency
+
+
+⚡Performance & UX
+
+* Skeleton loading UI for smooth experience
+* Prevents duplicate API calls (optimized fetching)
+* Shared caching for user details
+* Smooth navigation between screens
+
+
+💾 Storage & Handling
+
+* Recent searches stored locally (SharedPreferences)
+* Internet connectivity check before API calls
+* Graceful error handling:
+  * User not found
+  * Network issues
+
+
+🎨 UI & Design
+
+* Material 3 design system
+* Clean card-based layouts
+* Consistent spacing and alignment
+* Language color indicators for repositories
+* Custom app icon
+
+
+🛠 Tech Stack
+
 * Kotlin
 * Jetpack Compose
 * MVVM Architecture
-* Retrofit (API calls)
+* Retrofit (GitHub REST API)
 * Gson (JSON parsing)
 * Coil (Image loading)
 * Navigation Compose
 * Coroutines
 
-## 📂 Project Structure
+
+📂 Project Structure
+
 com.example.githubprofileviewer
 │
-├── data/               # API & Retrofit
-├── ui/                 # Screens (MainScreen, ProfileScreen)
-│   ├── components/     # Reusable UI components
-│   └── theme/          # Colors & Theme
-├── utils/              # Network utilities
-├── MainViewModel.kt    # Business logic
+├── data/               # API & Retrofit setup
+├── ui/                 # Screens (Main, Profile, Followers, Following)
+│   ├── components/     # Reusable UI components (FollowerItem, etc.)
+│   └── theme/          # Colors, typography, theming
+├── utils/              # Network & helper utilities
+├── MainViewModel.kt    # Business logic & state management
 ├── UiState.kt          # UI state handling
 
-## 🧠 Architecture
-This app follows MVVM (Model-View-ViewModel):
-* View (UI): Jetpack Compose screens
-* ViewModel: Handles business logic & API calls
-* Model: API responses
 
-## ⚙️ How It Works
-1. User enters GitHub username
+🧠 Architecture
+
+This app follows MVVM (Model-View-ViewModel):
+
+* View (UI) → Jetpack Compose screens
+* ViewModel → Handles business logic, API calls, and state
+* Model → API response data
+
+🔥 Key Architecture Decisions
+
+* Centralized `userDetails` cache to avoid duplicate API calls
+* Reusable composables (e.g., `FollowerItem`)
+* State-driven UI using `UiState`
+
+⚙️ How It Works
+
+1. User enters a GitHub username
 2. App navigates to profile screen
 3. API fetches:
    * User details
    * Repositories
-4. UI updates based on state:
-   * Loading → Skeleton UI
-   * Success → Data shown
-   * Error → Friendly message
+4. Additional screens:
+   * Followers → loads list + user details
+   * Following → same optimized flow
+5. UI reacts to state:
+   * ⏳ Loading → Skeleton UI
+   * ✅ Success → Data displayed
+   * ❌ Error → Friendly message
 
-## 🚧 Current Status
-✅ Initial Release Complete
-* Core features implemented
-* UI structured
-* Error handling added
 
-## 📦 APK Download Guide
-Follow these steps to download and install the APK:
-1. Go to the Releases section of this repository
-2. Click on the latest version
-3. Download the `.apk` file
-4. Open the downloaded file on your Android device
-5. If prompted, enable "Install from unknown sources"
-6. Install and launch the app 🎉
+🚧 Current Status
 
-## 🔮 Upcoming Improvements
-* 🔄 Improved loading skeleton (premium UI)
-* 🔗 Open repo in browser
-* 👥 Followers screen
-* ⭐ Repo sorting
+✅ Core features complete
+✅ Followers & Following implemented
+✅ UI optimized and consistent
+✅ API calls optimized (no duplication)
+✅ Clean and scalable architecture
+
+
+📦 APK Download Guide
+
+1. Go to the 'Releases' section of this repository
+2. Download the latest `.apk` file
+3. Open it on your Android device
+4. Enable 'Install from unknown sources' if prompted
+5. Install and launch the app 🎉
+
+
+🔮 Upcoming Improvements
+
+* ⭐ Enhanced Recent Searches (avatar + name)
+* 🔄 Pagination (load more followers/following)
+* 🎨 UI animations and micro-interactions
 * 🌙 Dark mode toggle
-* 📡 Offline caching (Room DB)
+* 📡 Offline caching using Room DB
+* 🔍 Better search suggestions
 
-## 🙌 Author
-Built with ❤️ as part of Android development learning journey.
+
+#🙌 Author
+
+Built with ❤️ as part of an Android development learning journey.
