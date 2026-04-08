@@ -21,11 +21,17 @@ object RetrofitInstance {
     private val client = OkHttpClient.Builder()
         .addInterceptor(Interceptor { chain ->
 
-            val request = chain.request().newBuilder()
-                .addHeader("Authorization", "token $TOKEN")
-                .build()
+            android.util.Log.d("TOKEN_CHECK", "Token: ${BuildConfig.GITHUB_TOKEN}")
 
-            chain.proceed(request)
+            val newRequest = if (TOKEN.isNotEmpty()) {
+                chain.request().newBuilder()
+                    .addHeader("Authorization", "Bearer $TOKEN")
+                    .build()
+            } else {
+                chain.request()
+            }
+
+            chain.proceed(newRequest)
         })
         .build()
 
